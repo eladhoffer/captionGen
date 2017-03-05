@@ -1,15 +1,11 @@
 import argparse
 import os
 import time
-import torch
-import string
 from datetime import datetime
 import logging
-from random import randrange
 import torch.nn as nn
 import torch.backends.cudnn as cudnn
 from torch.autograd import Variable
-from itertools import chain
 import math
 from torch.nn.utils import clip_grad_norm
 from torch.nn.utils.rnn import pack_padded_sequence
@@ -85,12 +81,6 @@ def main():
     checkpoint_file = os.path.join(save_path, 'checkpoint_epoch_%s.pth.tar')
 
     logging.debug("run arguments: %s", args)
-
-    lr0 = args.lr
-    lrd = args.lr_decay
-    grad_clip = args.grad_clip
-    start_cnn_finetune = args.finetune_epoch
-
     logging.info("using pretrained cnn %s", args.cnn)
     cnn = resnet.__dict__[args.cnn](pretrained=True)
 
@@ -152,7 +142,7 @@ def main():
             if training:
                 optimizer.zero_grad()
                 err.backward()
-                clip_grad_norm(model.rnn.parameters(), grad_clip)
+                clip_grad_norm(model.rnn.parameters(), args.grad_clip)
                 optimizer.step()
 
             # measure elapsed time
@@ -171,7 +161,7 @@ def main():
         return perplexity.avg
 
     for epoch in range(args.start_epoch, args.epochs):
-        if epoch >= start_cnn_finetune:
+        if epoch >= args.finetune_epoch:
             model.finetune_cnn(True)
         optimizer = adjust_optimizer(
             optimizer, epoch, regime)

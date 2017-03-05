@@ -5,7 +5,6 @@ import torchvision.transforms as transforms
 import string
 from pycocotools.coco import COCO
 from random import randrange
-import math
 from PIL import ImageFile
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
