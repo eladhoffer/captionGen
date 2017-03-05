@@ -52,6 +52,7 @@ class CaptionModel(nn.Module):
     def save_checkpoint(self, filename):
         torch.save({'embedder': self.embedder.state_dict(),
                     'rnn': self.rnn.state_dict(),
+                    'cnn': self.cnn.state_dict(),
                     'classifier': self.classifier.state_dict()},
                    filename)
 
@@ -59,6 +60,7 @@ class CaptionModel(nn.Module):
         cpnt = torch.load(filename)
         self.embedder.load_state_dict(cpnt['embedder'])
         self.rnn.load_state_dict(cpnt['rnn'])
+        self.cnn.load_state_dict(cpnt['cnn'])
         self.classifier.load_state_dict(cpnt['classifier'])
 
     def finetune_cnn(self, allow=True):
