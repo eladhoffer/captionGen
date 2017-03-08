@@ -40,9 +40,9 @@ parser.add_argument('--type', default='torch.cuda.FloatTensor',
                     help='type of tensor - e.g torch.cuda.HalfTensor')
 parser.add_argument('-j', '--workers', default=8, type=int, metavar='N',
                     help='number of data loading workers (default: 8)')
-parser.add_argument('--epochs', default=5, type=int, metavar='N',
+parser.add_argument('--epochs', default=10, type=int, metavar='N',
                     help='number of total epochs to run')
-parser.add_argument('--finetune_epoch', default=1, type=int,
+parser.add_argument('--finetune_epoch', default=3, type=int,
                     help='epoch to start cnn finetune')
 parser.add_argument('--start_epoch', default=0, type=int, metavar='N',
                     help='manual epoch number (useful on restarts)')
@@ -56,12 +56,14 @@ parser.add_argument('--grad_clip', default=5., type=float,
                     help='gradient max norm')
 parser.add_argument('--lr', '--learning_rate', default=0.1, type=float,
                     metavar='LR', help='initial learning rate')
-parser.add_argument('--lr_decay', '--learning_rate_decay', default=0.5, type=float,
+parser.add_argument('--lr_decay', '--learning_rate_decay', default=0.8, type=float,
                     metavar='LR', help='learning rate decay')
 parser.add_argument('--momentum', default=0.9, type=float, metavar='M',
                     help='momentum')
 parser.add_argument('--weight-decay', '--wd', default=1e-4, type=float,
                     metavar='W', help='weight decay (default: 1e-4)')
+parser.add_argument('--share_weights', default=False, type=bool,
+                    help='share embedder and classifier weights')
 parser.add_argument('--print_freq', '-p', default=10, type=int,
                     metavar='N', help='print frequency (default: 10)')
 parser.add_argument('-e', '--evaluate', type=str, metavar='FILE',
@@ -88,7 +90,8 @@ def main():
     model = CaptionModel(cnn, vocab,
                          embedding_size=args.embedding_size,
                          rnn_size=args.rnn_size,
-                         num_layers=args.num_layers)
+                         num_layers=args.num_layers,
+                         share_embedding_weights=args.share_weights)
 
     train_data = get_iterator(get_coco_data(vocab, train=True),
                               batch_size=args.batch_size,
@@ -175,7 +178,7 @@ def main():
                      'Training Perplexity {train_perp:.4f} \t'
                      'Validation Perplexity {val_perp:.4f} \n'
                      .format(epoch + 1, train_perp=train_perp, val_perp=val_perp))
-        model.save_checkpoint(checkpoint_file % epoch)
+        model.save_checkpoint(checkpoint_file % (epoch + 1))
 
 
 if __name__ == '__main__':
